@@ -62,6 +62,34 @@ def test_full_manual_canvas_mvp_flow(client, auth_headers):
     assert download.headers["content-type"].startswith("application/pdf")
 
 
+def test_pages_can_be_reordered_and_deleted(client, auth_headers):
+    project_res = client.post("/api/projects", headers=auth_headers, json={
+        "name": "页面管理说明书",
+        "source_language": "zh-CN",
+        "target_languages": ["en-US"],
+        "default_page_size": "A4",
+    })
+    assert project_res.status_code == 201
+    project = project_res.json()
+    pages = client.get(f"/api/projects/{project['id']}/pages", headers=auth_headers).json()
+    assert [page["page_no"] for page in pages] == [1, 2]
+
+    reorder_res = client.put(
+        f"/api/projects/{project['id']}/pages/order",
+        headers=auth_headers,
+        json={"page_ids": [pages[1]["id"], pages[0]["id"]]},
+    )
+    assert reorder_res.status_code == 200
+    assert [page["id"] for page in reorder_res.json()] == [pages[1]["id"], pages[0]["id"]]
+    assert [page["page_no"] for page in reorder_res.json()] == [1, 2]
+
+    delete_res = client.delete(f"/api/pages/{pages[1]['id']}", headers=auth_headers)
+    assert delete_res.status_code == 204
+    remaining = client.get(f"/api/projects/{project['id']}/pages", headers=auth_headers).json()
+    assert len(remaining) == 1
+    assert remaining[0]["page_no"] == 1
+
+
 def test_auth_required(client):
     response = client.get("/api/projects")
     assert response.status_code == 401

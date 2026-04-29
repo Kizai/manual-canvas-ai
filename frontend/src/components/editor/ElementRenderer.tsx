@@ -24,7 +24,21 @@ export function ElementRenderer({ element, selected, onSelect, onChange }: Props
 
   if (!element.visible) return null;
   if (element.type === 'text') {
-    return <Text {...common} text={element.text || ''} fontSize={element.fontSize || 14} fill={element.color || '#111827'} fontStyle={element.fontWeight === 'bold' ? 'bold' : 'normal'} stroke={selected ? '#2563eb' : undefined} strokeWidth={selected ? 0.4 : 0} />;
+    const styles = [element.fontWeight === 'bold' ? 'bold' : '', element.fontStyle === 'italic' ? 'italic' : ''].filter(Boolean).join(' ') || 'normal';
+    return (
+      <Text
+        {...common}
+        text={element.text || ''}
+        fontSize={element.fontSize || 14}
+        fill={element.color || '#111827'}
+        fontStyle={styles}
+        textDecoration={element.textDecoration}
+        lineHeight={element.lineHeight || 1.4}
+        align={element.align || 'left'}
+        stroke={selected ? '#2563eb' : undefined}
+        strokeWidth={selected ? 0.4 : 0}
+      />
+    );
   }
   if (element.type === 'line') {
     return <Line points={element.points || [element.x, element.y, element.x + element.width, element.y]} stroke={element.stroke || '#111827'} strokeWidth={2} draggable={!element.locked} onClick={onSelect} onDragEnd={(event) => onChange({ x: event.target.x(), y: event.target.y() })} />;

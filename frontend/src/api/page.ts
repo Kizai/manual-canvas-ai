@@ -17,6 +17,15 @@ export async function savePageElements(pageId: string, elements: CanvasElement[]
   return data;
 }
 
+export async function reorderPages(projectId: string, pageIds: string[]): Promise<ManualPage[]> {
+  const { data } = await request.put(`/projects/${projectId}/pages/order`, { page_ids: pageIds });
+  return data;
+}
+
+export async function deletePage(pageId: string): Promise<void> {
+  await request.delete(`/pages/${pageId}`);
+}
+
 export async function fetchPageVersion(pageId: string, language: string): Promise<PageVersion> {
   const { data } = await request.get(`/pages/${pageId}/versions/${language}`);
   return data;

@@ -46,6 +46,10 @@ class PageRead(Timestamped):
     elements_json: list[dict]
 
 
+class PageOrderUpdate(BaseModel):
+    page_ids: list[str] = Field(min_length=1)
+
+
 class ElementsUpdate(BaseModel):
     elements: list[dict] = Field(default_factory=list)
 
